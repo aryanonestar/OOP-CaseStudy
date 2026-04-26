@@ -1,42 +1,57 @@
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
-/* class for Inventory */
+/* Class for Inventory */
 class Inventory {
-    // Initializations
-    private Map<String, Integer> items;
+    // Store items and their quantities
+    private final Map<String, Integer> items;
 
     public Inventory() {
         items = new HashMap<>();
     }
 
-    // adding item, also check if item exists or not
+    // Add item (merge if already exists)
     public void addItem(String item, int quantity) {
-        if (items.containsKey(item)) {
-            int current_quantity = items.get(item);
-            items.put(item, current_quantity + quantity);
+        if (quantity <= 0) {
+            throw new IllegalArgumentException("Quantity must be positive");
         }
-        if (!items.containsKey(item))
-            items.put(item, quantity);
+        items.merge(item, quantity, Integer::sum);
     }
 
-    // removing item
+    // Remove item completely
     public void removeItem(String item) {
         items.remove(item);
     }
 
-    // check if item exist
+    // Check if item exists
     public boolean containsItem(String itemName) {
         return items.containsKey(itemName);
     }
 
-    // get items
+    // Get all items (unmodifiable view to prevent external modification)
     public Map<String, Integer> getItems() {
-        return items;
+        return Collections.unmodifiableMap(items);
     }
 
-    // get quantity
+    // Get quantity of a specific item
     public int getQuantity(String item) {
         return items.getOrDefault(item, 0);
+    }
+
+    // Reduce quantity of an item (remove if zero or less)
+    public void reduceItem(String item, int quantity) {
+        if (!items.containsKey(item)) return;
+        int updatedQuantity = items.get(item) - quantity;
+        if (updatedQuantity > 0) {
+            items.put(item, updatedQuantity);
+        } else {
+            items.remove(item);
+        }
+    }
+
+    // Clear all items
+    public void clearInventory() {
+        items.clear();
     }
 }
